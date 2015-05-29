@@ -9,6 +9,7 @@ A python version of Space Invaders
 
 ### How to compile
 To compile PythonInvaders into a self-contained .exe file, perform the following steps:
+
 1. Make sure you have the following installed on you computer:
   * Python 2.7
   * PyGame
