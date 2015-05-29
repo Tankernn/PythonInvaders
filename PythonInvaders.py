@@ -6,6 +6,12 @@ from random import randint, uniform
 import time
 import sys
 
+# Image paths
+enemy_img = "img/enemy.png"
+player_img = "img/car.png"
+shot_img = "img/shot.png"
+button_img = "img/button.png"
+
 # Settings, enter whatever values you like
 jump_power = 7 #How high can you jump?
 shot_power = 7 #How hard can you shoot?
@@ -14,7 +20,7 @@ score_on_kill = 10 #Score awarded on kill
 enemy_damage = 30 #Score lost on enemy collision
 score = 0 #Starting score
 ammo = 20 #Starting ammo
-font_name = "Inconsolata" #Font family for text
+font_name = "Sans" #Font family for text
 font_size = 25 #Font size for text
 
 #Init lists
@@ -56,13 +62,13 @@ class Entity(object): #The main class for objects on screen
 class Shot(Entity):
     def __init__(self, x, y, movement=None):
         global shot_power
-        super(Shot, self).__init__(x, y, 'shot.png', movement)
+        super(Shot, self).__init__(x, y, shot_img, movement)
 
-class Car(Entity):
+class Player(Entity):
     def __init__(self):
-        super(Car, self).__init__(200, 350, 'car.png')
+        super(Player, self).__init__(200, 350, player_img)
     def update(self):
-        super(Car, self).update()
+        super(Player, self).update()
         if self.y < 0:
             self.y = 0
         elif self.y > (500 - self.image.get_rect().height):
@@ -81,13 +87,13 @@ class Car(Entity):
         global ammo
         if ammo > 0:
             ammo -= 1
-            shots.append(Shot(self.x + self.image.get_rect().width/2, car.y, [0, -shot_power]))
+            shots.append(Shot(self.x + self.image.get_rect().width/2, p.y, [0, -shot_power]))
 
 class Enemy(Entity):
     justCollided = False
     def __init__(self):
-        self.image = pygame.image.load('enemy.png')
-        super(Enemy, self).__init__(randint(0, 500 - self.image.get_rect().width), randint(0, 200), 'enemy.png', [uniform(1.0, 5.0), 0], 0)
+        self.image = pygame.image.load(enemy_img)
+        super(Enemy, self).__init__(randint(0, 500 - self.image.get_rect().width), randint(0, 200), enemy_img, [uniform(1.0, 5.0), 0], 0)
     def update(self):
         super(Enemy, self).update()
         if self.x < 0 or self.x > 500 - self.image.get_rect().width:
@@ -98,9 +104,9 @@ class Enemy(Entity):
             global ammo
             ammo += ammo_on_kill
             self.alive = False
-        if (not self.rect().colliderect(car.rect())) and self.justCollided:
+        if (not self.rect().colliderect(p.rect())) and self.justCollided:
             self.justCollided = False
-        if self.rect().colliderect(car.rect()) and not self.justCollided:
+        if self.rect().colliderect(p.rect()) and not self.justCollided:
             self.justCollided = True
             global score
             if score - enemy_damage < 0:
@@ -110,15 +116,15 @@ class Enemy(Entity):
 
 class Button(Entity):
     def __init__(self, x, y):
-        super(Button, self).__init__(x, y, 'button.png', gravity=0)
+        super(Button, self).__init__(x, y, button_img, gravity=0)
     def update(self):
-        if self.rect().colliderect(car.rect()):
+        if self.rect().colliderect(p.rect()):
             enemies.append(Enemy())
         else:
             self.y = 500 - 8
 
 enemies = [Enemy(), Enemy(), Enemy()]
-car = Car()
+p = Player()
 button = Button(0, 500-8)
 
 while True:
@@ -130,22 +136,22 @@ while True:
             sys.exit()
         elif event.type == KEYDOWN:
             if event.key == K_RIGHT:
-                car.movement[0] += 10
+                p.movement[0] += 10
             elif event.key == K_LEFT:
-                car.movement[0] += -10
+                p.movement[0] += -10
             elif event.key == K_DOWN:
-                car.gravity = 0.5
+                p.gravity = 0.5
             elif event.key == K_SPACE:
-                car.jump()
+                p.jump()
             elif event.key == K_z:
-                car.shoot()
+                p.shoot()
         elif event.type == KEYUP:
             if event.key == K_RIGHT:
-                car.movement[0] -= 10
+                p.movement[0] -= 10
             elif event.key == K_LEFT:
-                car.movement[0] -= -10
+                p.movement[0] -= -10
             elif event.key == K_DOWN:
-                car.gravity = 0.1
+                p.gravity = 0.1
 
     #Update stuff
     for entity in shots + enemies:
@@ -165,7 +171,7 @@ while True:
         enemies.append(Enemy())
         enemies.append(Enemy())
 
-    car.update()
+    p.update()
     button.update()
 
     #Draw everything to screen
@@ -174,7 +180,7 @@ while True:
     for entity in enemies + shots:
         entity.draw()
 
-    car.draw()
+    p.draw()
     button.draw()
 
     #Render text
@@ -182,7 +188,7 @@ while True:
     linenumber = 0
     textlines.append(font.render("Score: " + str(score), 1, (0,0,0)))
     textlines.append(font.render("Ammo: " + str(ammo), 1, (0,0,0)))
-    if car.gravity == 0.5:
+    if p.gravity == 0.5:
         textlines.append(font.render("GRAVITY", 1, (0,0,0)))
     if score == 420:
         textlines.append(font.render("Blaze it!", 1, (0,0,0)))
