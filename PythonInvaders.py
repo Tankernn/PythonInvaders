@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/local/bin/python3
 
 import pygame
 from pygame.locals import *
@@ -132,7 +132,7 @@ while True:
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
-            print 'Exiting...'
+            print('Exiting...')
             sys.exit()
         elif event.type == KEYDOWN:
             if event.key == K_RIGHT:
